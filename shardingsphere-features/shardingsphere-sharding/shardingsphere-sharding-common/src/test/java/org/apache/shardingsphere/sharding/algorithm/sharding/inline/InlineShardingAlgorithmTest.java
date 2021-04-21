@@ -37,11 +37,14 @@ public final class InlineShardingAlgorithmTest {
     private InlineShardingAlgorithm inlineShardingAlgorithm;
     
     private InlineShardingAlgorithm inlineShardingAlgorithmWithSimplified;
+
+    private InlineShardingAlgorithm inlineShardingAlgorithmWithBuiltinMethods;
     
     @Before
     public void setUp() {
         initInlineShardingAlgorithm();
         initInlineShardingAlgorithmWithSimplified();
+        initInlineShardingAlgorithmWithBuiltinMethods();
     }
     
     private void initInlineShardingAlgorithm() {
@@ -55,6 +58,12 @@ public final class InlineShardingAlgorithmTest {
         inlineShardingAlgorithmWithSimplified = new InlineShardingAlgorithm();
         inlineShardingAlgorithmWithSimplified.getProps().setProperty("algorithm-expression", "t_order_${order_id % 4}");
         inlineShardingAlgorithmWithSimplified.init();
+    }
+
+    private void initInlineShardingAlgorithmWithBuiltinMethods() {
+        inlineShardingAlgorithmWithBuiltinMethods = new InlineShardingAlgorithm();
+        inlineShardingAlgorithmWithBuiltinMethods.getProps().setProperty("algorithm-expression", "tb_${first2(last3(length(member_id) > 8 ? member_id : member_id % 200))}");
+        inlineShardingAlgorithmWithBuiltinMethods.init();
     }
     
     @Test
@@ -75,5 +84,14 @@ public final class InlineShardingAlgorithmTest {
         List<String> availableTargetNames = Lists.newArrayList("t_order_0", "t_order_1");
         assertThat(inlineShardingAlgorithm.doSharding(availableTargetNames, new PreciseShardingValue<>("t_order", "order_id", 0)), is("t_order_0"));
         assertThat(inlineShardingAlgorithmWithSimplified.doSharding(availableTargetNames, new PreciseShardingValue<>("t_order", "order_id", 0)), is("t_order_0"));
+    }
+
+    @Test
+    public void assertDoShardingWithBuiltinMethods() {
+        List<String> availableTargetNames = Lists.newArrayList("tb_00", "tb_01", "tb_02", "tb_03", "tb_19", "tb_32");
+        assertThat(inlineShardingAlgorithmWithBuiltinMethods.doSharding(availableTargetNames, new PreciseShardingValue<>("tb", "member_id", 2)), is("tb_02"));
+        assertThat(inlineShardingAlgorithmWithBuiltinMethods.doSharding(availableTargetNames, new PreciseShardingValue<>("tb", "member_id", 9991)), is("tb_19"));
+        assertThat(inlineShardingAlgorithmWithBuiltinMethods.doSharding(availableTargetNames, new PreciseShardingValue<>("tb", "member_id", 999993321)), is("tb_32"));
+
     }
 }

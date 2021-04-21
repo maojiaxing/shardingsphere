@@ -20,6 +20,7 @@ package org.apache.shardingsphere.sharding.algorithm.sharding.inline;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import groovy.lang.Closure;
 import groovy.lang.GString;
@@ -46,9 +47,24 @@ public final class InlineExpressionParser {
     private static final Map<String, Script> SCRIPTS = new ConcurrentHashMap<>();
     
     private static final GroovyShell SHELL = new GroovyShell();
+
+    private static final List<String> BUILTIN_METHODS = Lists.newArrayList(
+            "def string = {str -> str + ''}",
+            "def length = {str -> string(str).length()}",
+            "def padRight;  padRight = {str, min, ch -> length(str) >= min ? string(str) : padRight(ch + str , min, ch)}",
+            "def substring ={str, begin=0, end -> string(str).substring(begin, end)}",
+            "def last = {s, len, pad='0' -> def str = padRight(s, len, pad); str.substring(str.length() - len, str.length())}",
+            "def last1 = {s, pad='0' -> def str = padRight(s, 1, pad); str.substring(str.length() - 1, str.length())}",
+            "def last2 = {s, pad='0' -> def str = padRight(s, 2, pad); str.substring(str.length() - 2, str.length())}",
+            "def last3 = {s, pad='0' -> def str = padRight(s, 3, pad); str.substring(str.length() - 3, str.length())}",
+            "def first = {s, len, pad='0' -> padRight(s, len, pad).substring(0, len)}",
+            "def first1 = {s, pad='0' -> padRight(s, 1, pad).substring(0, 1)}",
+            "def first2 = {s, pad='0' -> padRight(s, 2, pad).substring(0, 2)}",
+            "def first3 = {s, pad='0' -> padRight(s, 3, pad).substring(0, 3)}"
+    );
     
     private final String inlineExpression;
-    
+
     /**
      * Replace all inline expression placeholders.
      * 
@@ -74,7 +90,8 @@ public final class InlineExpressionParser {
      * @return closure
      */
     public Closure<?> evaluateClosure() {
-        return (Closure) evaluate(Joiner.on("").join("{it -> \"", inlineExpression, "\"}"));
+        String expression = Joiner.on(";").join(BUILTIN_METHODS) + "; " + Joiner.on("").join("{it -> \"", inlineExpression, "\"}");
+        return (Closure<?>) evaluate(expression);
     }
     
     private List<Object> evaluate(final List<String> inlineExpressions) {
