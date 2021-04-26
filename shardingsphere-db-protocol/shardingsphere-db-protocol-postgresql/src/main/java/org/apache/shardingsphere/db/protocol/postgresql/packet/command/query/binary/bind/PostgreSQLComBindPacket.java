@@ -20,11 +20,12 @@ package org.apache.shardingsphere.db.protocol.postgresql.packet.command.query.bi
 import lombok.Getter;
 import org.apache.shardingsphere.db.protocol.postgresql.packet.command.PostgreSQLCommandPacket;
 import org.apache.shardingsphere.db.protocol.postgresql.packet.command.PostgreSQLCommandPacketType;
-import org.apache.shardingsphere.db.protocol.postgresql.packet.command.query.binary.BinaryStatementRegistry;
+import org.apache.shardingsphere.db.protocol.postgresql.packet.command.query.binary.PostgreSQLBinaryStatementRegistry;
 import org.apache.shardingsphere.db.protocol.postgresql.packet.command.query.binary.PostgreSQLBinaryStatement;
 import org.apache.shardingsphere.db.protocol.postgresql.packet.command.query.binary.PostgreSQLBinaryStatementParameterType;
 import org.apache.shardingsphere.db.protocol.postgresql.packet.command.query.binary.bind.protocol.PostgreSQLBinaryProtocolValue;
 import org.apache.shardingsphere.db.protocol.postgresql.packet.command.query.binary.bind.protocol.PostgreSQLBinaryProtocolValueFactory;
+import org.apache.shardingsphere.db.protocol.postgresql.packet.identifier.PostgreSQLIdentifierTag;
 import org.apache.shardingsphere.db.protocol.postgresql.payload.PostgreSQLPacketPayload;
 
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public final class PostgreSQLComBindPacket extends PostgreSQLCommandPacket {
         for (int i = 0; i < parameterFormatsLength; i++) {
             payload.readInt2();
         }
-        PostgreSQLBinaryStatement binaryStatement = BinaryStatementRegistry.getInstance().get(connectionId).getBinaryStatement(statementId);
+        PostgreSQLBinaryStatement binaryStatement = PostgreSQLBinaryStatementRegistry.getInstance().get(connectionId).getBinaryStatement(statementId);
         sql = null == binaryStatement ? null : binaryStatement.getSql();
         parameters = null == sql ? Collections.emptyList() : getParameters(payload, binaryStatement.getParameterTypes());
         int resultFormatsLength = payload.readInt2();
@@ -83,7 +84,7 @@ public final class PostgreSQLComBindPacket extends PostgreSQLCommandPacket {
     }
     
     @Override
-    public char getIdentifier() {
-        return PostgreSQLCommandPacketType.BIND_COMMAND.getValue();
+    public PostgreSQLIdentifierTag getIdentifier() {
+        return PostgreSQLCommandPacketType.BIND_COMMAND;
     }
 }

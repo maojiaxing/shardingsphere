@@ -74,6 +74,7 @@ public final class CommandExecutorTask implements Runnable {
             // CHECKSTYLE:ON
             processException(ex);
         } finally {
+            backendConnection.getSubmittedTaskCount().decrementAndGet();
             Collection<SQLException> exceptions = closeExecutionResources();
             if (isNeedFlush) {
                 context.flush();
@@ -103,12 +104,12 @@ public final class CommandExecutorTask implements Runnable {
     }
     
     private void processException(final Exception cause) {
-        context.writeAndFlush(databaseProtocolFrontendEngine.getCommandExecuteEngine().getErrorPacket(cause));
-        Optional<DatabasePacket<?>> databasePacket = databaseProtocolFrontendEngine.getCommandExecuteEngine().getOtherPacket();
-        databasePacket.ifPresent(context::writeAndFlush);
         if (!ExpectedExceptions.isExpected(cause.getClass())) {
             log.error("Exception occur: ", cause);
         }
+        context.writeAndFlush(databaseProtocolFrontendEngine.getCommandExecuteEngine().getErrorPacket(cause));
+        Optional<DatabasePacket<?>> databasePacket = databaseProtocolFrontendEngine.getCommandExecuteEngine().getOtherPacket();
+        databasePacket.ifPresent(context::writeAndFlush);
     }
     
     private Collection<SQLException> closeExecutionResources() {

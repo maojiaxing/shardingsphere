@@ -27,7 +27,6 @@ import org.apache.shardingsphere.db.protocol.postgresql.packet.command.PostgreSQ
 import org.apache.shardingsphere.db.protocol.postgresql.packet.command.PostgreSQLCommandPacketType;
 import org.apache.shardingsphere.db.protocol.postgresql.packet.command.PostgreSQLCommandPacketTypeLoader;
 import org.apache.shardingsphere.db.protocol.postgresql.packet.generic.PostgreSQLCommandCompletePacket;
-import org.apache.shardingsphere.db.protocol.postgresql.packet.generic.PostgreSQLErrorResponsePacket;
 import org.apache.shardingsphere.db.protocol.postgresql.packet.generic.PostgreSQLReadyForQueryPacket;
 import org.apache.shardingsphere.db.protocol.postgresql.payload.PostgreSQLPacketPayload;
 import org.apache.shardingsphere.infra.config.properties.ConfigurationPropertyKey;
@@ -37,6 +36,7 @@ import org.apache.shardingsphere.proxy.frontend.command.CommandExecuteEngine;
 import org.apache.shardingsphere.proxy.frontend.command.executor.CommandExecutor;
 import org.apache.shardingsphere.proxy.frontend.command.executor.QueryCommandExecutor;
 import org.apache.shardingsphere.proxy.frontend.command.executor.ResponseType;
+import org.apache.shardingsphere.proxy.frontend.postgresql.err.PostgreSQLErrPacketFactory;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -63,26 +63,27 @@ public final class PostgreSQLCommandExecuteEngine implements CommandExecuteEngin
     
     @Override
     public DatabasePacket<?> getErrorPacket(final Exception cause) {
-        PostgreSQLErrorResponsePacket result = new PostgreSQLErrorResponsePacket();
-        result.addField(PostgreSQLErrorResponsePacket.FIELD_TYPE_MESSAGE, cause.getMessage());
-        return result;
+        return PostgreSQLErrPacketFactory.newInstance(cause);
     }
     
     @Override
     public Optional<DatabasePacket<?>> getOtherPacket() {
-        return Optional.of(new PostgreSQLReadyForQueryPacket());
+        // TODO judge is in transaction from context, not from TransactionHolder (because of thread local)
+        return Optional.of(new PostgreSQLReadyForQueryPacket(true));
     }
     
     @Override
     public void writeQueryData(final ChannelHandlerContext context,
                                final BackendConnection backendConnection, final QueryCommandExecutor queryCommandExecutor, final int headerPackagesCount) throws SQLException {
+        // TODO judge is in transaction from context, not from TransactionHolder (because of thread local)
+        boolean inTransaction = true;
         if (ResponseType.QUERY == queryCommandExecutor.getResponseType() && !context.channel().isActive()) {
             context.write(new PostgreSQLCommandCompletePacket());
-            context.write(new PostgreSQLReadyForQueryPacket());
+            context.write(new PostgreSQLReadyForQueryPacket(inTransaction));
             return;
         }
         if (ResponseType.UPDATE == queryCommandExecutor.getResponseType()) {
-            context.write(new PostgreSQLReadyForQueryPacket());
+            context.write(new PostgreSQLReadyForQueryPacket(inTransaction));
             return;
         }
         int count = 0;
@@ -101,6 +102,6 @@ public final class PostgreSQLCommandExecuteEngine implements CommandExecuteEngin
             }
         }
         context.write(new PostgreSQLCommandCompletePacket());
-        context.write(new PostgreSQLReadyForQueryPacket());
+        context.write(new PostgreSQLReadyForQueryPacket(inTransaction));
     }
 }

@@ -125,6 +125,12 @@
     <sql-case id="alter_table_add_range_partition" value="ALTER TABLE t_order ADD PARTITION range_p_order VALUES LESS THAN(100)" db-types="Oracle" />
     <sql-case id="alter_table_add_list_partition" value="ALTER TABLE t_order ADD PARTITION list_p_order VALUES(100, 200, 300)" db-types="Oracle" />
     <sql-case id="alter_table_drop_partition" value="ALTER TABLE t_order DROP PARTITION list_p_order" db-types="Oracle" />
+    <sql-case id="alter_table_drop_partition_update_global_index" value="ALTER TABLE t_order DROP PARTITION list_p_order UPDATE GLOBAL INDEXES" db-types="Oracle" />
+    <sql-case id="alter_table_drop_partition_update_all_index" value="ALTER TABLE t_order DROP PARTITION list_p_order UPDATE INDEXES" db-types="Oracle" />
+    <sql-case id="alter_table_drop_partition_update_all_index_partition" value="ALTER TABLE t_order DROP PARTITION list_p_order UPDATE INDEXES (order_index (PARTITION))" db-types="Oracle" />
+    <sql-case id="alter_table_drop_partition_update_all_index_subpartition" value="ALTER TABLE t_order DROP PARTITION list_p_order UPDATE INDEXES (order_index (SUBPARTITION))" db-types="Oracle" />
+    <sql-case id="alter_table_drop_partition_update_global_index_parallel" value="ALTER TABLE t_order DROP PARTITION list_p_order UPDATE GLOBAL INDEXES PARALLEL" db-types="Oracle" />
+    <sql-case id="alter_table_drop_partition_update_all_index_noparallel" value="ALTER TABLE t_order DROP PARTITION list_p_order UPDATE INDEXES NOPARALLEL" db-types="Oracle" />
 <!--    alter index test-->
     <sql-case id="alter_index" value="ALTER INDEX order_index REBUILD PARALLEL" db-types="Oracle" />
     <sql-case id="alter_index_with_space" value="    ALTER INDEX
@@ -175,4 +181,12 @@
     <sql-case id="alter_synonym_compile" value="ALTER SYNONYM offices COMPILE" db-types="Oracle" />
     <sql-case id="alter_public_synonym_compile" value="ALTER PUBLIC SYNONYM emp_table COMPILE" db-types="Oracle" />
     <sql-case id="alter_synonym_noneditionable" value="ALTER SYNONYM offices NONEDITIONABLE" db-types="Oracle" />
+<!--alter session test-->
+    <sql-case id="alter_session_enable_parallel_dml" value="ALTER SESSION ENABLE PARALLEL DML" db-types="Oracle" />
+    <sql-case id="alter_session_advise_commit" value="ALTER SESSION ADVISE COMMIT" db-types="Oracle" />
+    <sql-case id="alter_session_advise_rollback" value="ALTER SESSION ADVISE ROLLBACK" db-types="Oracle" />
+    <sql-case id="alter_session_close_database_link" value="ALTER SESSION CLOSE DATABASE LINK private_link" db-types="Oracle" />
+    <sql-case id="alter_session_change_parameter" value="ALTER SESSION SET NLS_DATE_LANGUAGE = French" db-types="Oracle" />
+    <sql-case id="alter_session_set_container" value="ALTER SESSION SET CONTAINER = cdb$root" db-types="Oracle" />
+    <sql-case id="alter_session_set_container_service" value="ALTER SESSION SET CONTAINER = pdb1 SERVICE = my_new_service" db-types="Oracle" />
 </sql-cases>

@@ -21,7 +21,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.eventbus.Subscribe;
-import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.shardingsphere.infra.config.algorithm.ShardingSphereAlgorithmFactory;
 import org.apache.shardingsphere.infra.config.exception.ShardingSphereConfigurationException;
@@ -30,6 +29,7 @@ import org.apache.shardingsphere.infra.datanode.DataNode;
 import org.apache.shardingsphere.infra.eventbus.ShardingSphereEventBus;
 import org.apache.shardingsphere.infra.metadata.schema.refresher.event.CreateTableEvent;
 import org.apache.shardingsphere.infra.metadata.schema.refresher.event.DropTableEvent;
+import org.apache.shardingsphere.infra.rule.level.FeatureRule;
 import org.apache.shardingsphere.infra.rule.scope.SchemaRule;
 import org.apache.shardingsphere.infra.rule.type.DataNodeContainedRule;
 import org.apache.shardingsphere.infra.rule.type.TableContainedRule;
@@ -68,7 +68,7 @@ import java.util.stream.Collectors;
  * Sharding rule.
  */
 @Getter
-public final class ShardingRule implements SchemaRule, DataNodeContainedRule, TableContainedRule {
+public final class ShardingRule implements FeatureRule, SchemaRule, DataNodeContainedRule, TableContainedRule {
     
     static {
         ShardingSphereServiceLoader.register(ShardingAlgorithm.class);
@@ -89,10 +89,8 @@ public final class ShardingRule implements SchemaRule, DataNodeContainedRule, Ta
     
     private final Map<String, SingleTableRule> singleTableRules;
     
-    @Getter(AccessLevel.NONE)
     private final ShardingStrategyConfiguration defaultDatabaseShardingStrategyConfig;
     
-    @Getter(AccessLevel.NONE)
     private final ShardingStrategyConfiguration defaultTableShardingStrategyConfig;
     
     private final KeyGenerateAlgorithm defaultKeyGenerateAlgorithm;

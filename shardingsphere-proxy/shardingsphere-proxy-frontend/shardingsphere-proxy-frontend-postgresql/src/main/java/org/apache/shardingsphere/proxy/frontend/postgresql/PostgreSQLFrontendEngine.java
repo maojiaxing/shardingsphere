@@ -21,8 +21,10 @@ import lombok.Getter;
 import org.apache.shardingsphere.db.protocol.codec.DatabasePacketCodecEngine;
 import org.apache.shardingsphere.db.protocol.postgresql.codec.PostgreSQLPacketCodecEngine;
 import org.apache.shardingsphere.db.protocol.postgresql.packet.PostgreSQLPacket;
-import org.apache.shardingsphere.db.protocol.postgresql.packet.command.query.binary.BinaryStatementRegistry;
+import org.apache.shardingsphere.db.protocol.postgresql.packet.command.query.binary.PostgreSQLBinaryStatementRegistry;
 import org.apache.shardingsphere.proxy.backend.communication.jdbc.connection.BackendConnection;
+import org.apache.shardingsphere.proxy.frontend.authentication.AuthenticationEngine;
+import org.apache.shardingsphere.proxy.frontend.command.CommandExecuteEngine;
 import org.apache.shardingsphere.proxy.frontend.context.FrontendContext;
 import org.apache.shardingsphere.proxy.frontend.postgresql.authentication.PostgreSQLAuthenticationEngine;
 import org.apache.shardingsphere.proxy.frontend.postgresql.command.PostgreSQLCommandExecuteEngine;
@@ -36,15 +38,26 @@ public final class PostgreSQLFrontendEngine implements DatabaseProtocolFrontendE
     
     private final FrontendContext frontendContext = new FrontendContext(true, false);
     
-    private final PostgreSQLAuthenticationEngine authenticationEngine = new PostgreSQLAuthenticationEngine();
+    private final AuthenticationEngine authenticationEngine = new PostgreSQLAuthenticationEngine();
     
-    private final PostgreSQLCommandExecuteEngine commandExecuteEngine = new PostgreSQLCommandExecuteEngine();
+    private final CommandExecuteEngine commandExecuteEngine = new PostgreSQLCommandExecuteEngine();
     
     private final DatabasePacketCodecEngine<PostgreSQLPacket> codecEngine = new PostgreSQLPacketCodecEngine();
     
     @Override
     public void release(final BackendConnection backendConnection) {
-        BinaryStatementRegistry.getInstance().unregister(backendConnection.getConnectionId());
+        waitingForFinish(backendConnection);
+        PostgreSQLBinaryStatementRegistry.getInstance().unregister(backendConnection.getConnectionId());
+    }
+    
+    private void waitingForFinish(final BackendConnection backendConnection) {
+        while (backendConnection.getSubmittedTaskCount().get() > 0) {
+            try {
+                Thread.sleep(500L);
+            } catch (final InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
     
     @Override

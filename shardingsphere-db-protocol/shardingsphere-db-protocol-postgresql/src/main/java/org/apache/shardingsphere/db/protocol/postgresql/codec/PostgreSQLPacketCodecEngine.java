@@ -20,7 +20,9 @@ package org.apache.shardingsphere.db.protocol.postgresql.codec;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.shardingsphere.db.protocol.codec.DatabasePacketCodecEngine;
-import org.apache.shardingsphere.db.protocol.postgresql.packet.PostgreSQLIdentifierPacket;
+import org.apache.shardingsphere.db.protocol.postgresql.constant.PostgreSQLErrorCode;
+import org.apache.shardingsphere.db.protocol.postgresql.constant.PostgreSQLMessageSeverityLevel;
+import org.apache.shardingsphere.db.protocol.postgresql.packet.identifier.PostgreSQLIdentifierPacket;
 import org.apache.shardingsphere.db.protocol.postgresql.packet.PostgreSQLPacket;
 import org.apache.shardingsphere.db.protocol.postgresql.packet.generic.PostgreSQLErrorResponsePacket;
 import org.apache.shardingsphere.db.protocol.postgresql.payload.PostgreSQLPacketPayload;
@@ -68,12 +70,13 @@ public final class PostgreSQLPacketCodecEngine implements DatabasePacketCodecEng
         } catch (final Exception ex) {
             // CHECKSTYLE:ON
             payload.getByteBuf().resetWriterIndex();
-            PostgreSQLErrorResponsePacket postgreSQLErrorResponsePacket = new PostgreSQLErrorResponsePacket();
-            postgreSQLErrorResponsePacket.addField(PostgreSQLErrorResponsePacket.FIELD_TYPE_MESSAGE, ex.getMessage());
-            postgreSQLErrorResponsePacket.write(payload);
+            // TODO consider what severity to use
+            PostgreSQLErrorResponsePacket errorResponsePacket = PostgreSQLErrorResponsePacket.newBuilder(PostgreSQLMessageSeverityLevel.ERROR, PostgreSQLErrorCode.SYSTEM_ERROR, ex.getMessage())
+                    .build();
+            errorResponsePacket.write(payload);
         } finally {
             if (message instanceof PostgreSQLIdentifierPacket) {
-                out.writeByte(((PostgreSQLIdentifierPacket) message).getIdentifier());
+                out.writeByte(((PostgreSQLIdentifierPacket) message).getIdentifier().getValue());
                 out.writeInt(payload.getByteBuf().readableBytes() + PAYLOAD_LENGTH);
             }
             out.writeBytes(payload.getByteBuf());

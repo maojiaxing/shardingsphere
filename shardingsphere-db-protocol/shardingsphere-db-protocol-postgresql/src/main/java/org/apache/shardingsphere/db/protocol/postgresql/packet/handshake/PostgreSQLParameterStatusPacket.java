@@ -18,8 +18,9 @@
 package org.apache.shardingsphere.db.protocol.postgresql.packet.handshake;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.shardingsphere.db.protocol.postgresql.packet.PostgreSQLIdentifierPacket;
-import org.apache.shardingsphere.db.protocol.postgresql.packet.command.PostgreSQLCommandPacketType;
+import org.apache.shardingsphere.db.protocol.postgresql.packet.identifier.PostgreSQLIdentifierPacket;
+import org.apache.shardingsphere.db.protocol.postgresql.packet.identifier.PostgreSQLIdentifierTag;
+import org.apache.shardingsphere.db.protocol.postgresql.packet.identifier.PostgreSQLMessagePacketType;
 import org.apache.shardingsphere.db.protocol.postgresql.payload.PostgreSQLPacketPayload;
 
 /**
@@ -39,7 +40,7 @@ public final class PostgreSQLParameterStatusPacket implements PostgreSQLIdentifi
     }
     
     @Override
-    public char getIdentifier() {
-        return PostgreSQLCommandPacketType.PARAMETER_STATUS.getValue();
+    public PostgreSQLIdentifierTag getIdentifier() {
+        return PostgreSQLMessagePacketType.PARAMETER_STATUS;
     }
 }
