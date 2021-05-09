@@ -20,21 +20,8 @@ package org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.shardingsphere.proxy.backend.communication.jdbc.connection.BackendConnection;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintAddDatabaseShardingValueCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintAddTableShardingValueCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintClearCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintSetDatabaseShardingValueCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintSetPrimaryOnlyCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintShowStatusCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintShowTableStatusCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.executor.HintAddDatabaseShardingValueExecutor;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.executor.HintAddTableShardingValueExecutor;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.executor.HintClearExecutor;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.executor.HintErrorParameterExecutor;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.executor.HintSetDatabaseShardingValueExecutor;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.executor.HintSetPrimaryOnlyExecutor;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.executor.HintShowStatusExecutor;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.executor.HintShowTableStatusExecutor;
+import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.*;
+import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.executor.*;
 
 /**
  * Hint command executor factory.
@@ -71,6 +58,9 @@ public final class HintCommandExecutorFactory {
         }
         if (hintCommand instanceof HintShowTableStatusCommand) {
             return new HintShowTableStatusExecutor(backendConnection);
+        }
+        if (hintCommand instanceof HintSetTransactionMetadataCommand) {
+            return new HintSetTransactionMetadataExecutor();
         }
         return new HintErrorParameterExecutor(sql);
     }

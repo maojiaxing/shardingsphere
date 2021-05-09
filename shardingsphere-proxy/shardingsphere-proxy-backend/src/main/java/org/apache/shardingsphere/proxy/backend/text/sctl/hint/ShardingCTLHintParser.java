@@ -18,14 +18,7 @@
 package org.apache.shardingsphere.proxy.backend.text.sctl.hint;
 
 import org.apache.shardingsphere.proxy.backend.text.sctl.ShardingCTLParser;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintAddDatabaseShardingValueCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintAddTableShardingValueCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintClearCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintErrorParameterCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintSetDatabaseShardingValueCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintSetPrimaryOnlyCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintShowStatusCommand;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintShowTableStatusCommand;
+import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.*;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -51,6 +44,8 @@ public final class ShardingCTLHintParser implements ShardingCTLParser<ShardingCT
     private final String showTableStatusRegex = "sctl:hint\\s+show\\s+table\\s+status\\s*$";
     
     private final String errorParameterRegex = "sctl:hint\\s+.*";
+
+    private final String setTransactionMetaDataRegex = "sctl:hint\\s+set\\s+TransactionMetadata=\\s+(\\S*)=(\\S*)";
     
     private final Matcher setPrimaryOnlyMatcher;
     
@@ -67,6 +62,8 @@ public final class ShardingCTLHintParser implements ShardingCTLParser<ShardingCT
     private final Matcher showTableStatusMatcher;
     
     private final Matcher errorParameterMatcher;
+
+    private final Matcher setTransactionMetadataMatcher;
     
     public ShardingCTLHintParser(final String sql) {
         setPrimaryOnlyMatcher = Pattern.compile(setPrimaryOnlyRegex, Pattern.CASE_INSENSITIVE).matcher(sql);
@@ -77,6 +74,7 @@ public final class ShardingCTLHintParser implements ShardingCTLParser<ShardingCT
         showStatusMatcher = Pattern.compile(showStatusRegex, Pattern.CASE_INSENSITIVE).matcher(sql);
         showTableStatusMatcher = Pattern.compile(showTableStatusRegex, Pattern.CASE_INSENSITIVE).matcher(sql);
         errorParameterMatcher = Pattern.compile(errorParameterRegex, Pattern.CASE_INSENSITIVE).matcher(sql);
+        setTransactionMetadataMatcher = Pattern.compile(setTransactionMetaDataRegex, Pattern.CASE_INSENSITIVE).matcher(sql);
     }
     
     @Override
@@ -113,6 +111,11 @@ public final class ShardingCTLHintParser implements ShardingCTLParser<ShardingCT
             String logicTable = addTableShardingValueMatcher.group(1);
             String shardingValue = addTableShardingValueMatcher.group(2);
             return Optional.of(new ShardingCTLHintStatement(new HintAddTableShardingValueCommand(logicTable, shardingValue)));
+        }
+        if (setTransactionMetadataMatcher.find()) {
+            String metadataKey = addDatabaseShardingValueMatcher.group(1);
+            String metadataValue = addDatabaseShardingValueMatcher.group(2);
+            return Optional.of(new ShardingCTLHintStatement(new HintSetTransactionMetadataCommand(metadataKey, metadataValue)));
         }
         if (clearMatcher.find()) {
             return Optional.of(new ShardingCTLHintStatement(new HintClearCommand()));
