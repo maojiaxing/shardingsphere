@@ -89,7 +89,7 @@ public final class InlineShardingAlgorithmTest {
     @Test
     public void assertDoShardingWithBuiltinMethods() {
         List<String> availableTargetNames = Lists.newArrayList("tb_00", "tb_01", "tb_02", "tb_03", "tb_19", "tb_32");
-        assertThat(inlineShardingAlgorithmWithBuiltinMethods.doSharding(availableTargetNames, new PreciseShardingValue<>("tb", "member_id", 2)), is("tb_02"));
+        assertThat(inlineShardingAlgorithmWithBuiltinMethods.doSharding(availableTargetNames, new PreciseShardingValue<>("tb", "member_id", 2)), is("tb_00"));
         assertThat(inlineShardingAlgorithmWithBuiltinMethods.doSharding(availableTargetNames, new PreciseShardingValue<>("tb", "member_id", 9991)), is("tb_19"));
         assertThat(inlineShardingAlgorithmWithBuiltinMethods.doSharding(availableTargetNames, new PreciseShardingValue<>("tb", "member_id", 999993321)), is("tb_32"));
 

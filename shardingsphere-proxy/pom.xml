@@ -28,9 +28,9 @@
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     
-    <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
-    </properties>
+<!--    <properties>-->
+<!--        <maven.deploy.skip>true</maven.deploy.skip>-->
+<!--    </properties>-->
     
     <modules>
         <module>shardingsphere-proxy-common</module>

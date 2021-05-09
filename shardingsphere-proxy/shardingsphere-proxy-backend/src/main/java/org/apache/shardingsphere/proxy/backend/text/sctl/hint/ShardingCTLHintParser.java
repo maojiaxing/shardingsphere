@@ -18,7 +18,15 @@
 package org.apache.shardingsphere.proxy.backend.text.sctl.hint;
 
 import org.apache.shardingsphere.proxy.backend.text.sctl.ShardingCTLParser;
-import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.*;
+import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintAddDatabaseShardingValueCommand;
+import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintAddTableShardingValueCommand;
+import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintClearCommand;
+import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintErrorParameterCommand;
+import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintSetDatabaseShardingValueCommand;
+import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintSetPrimaryOnlyCommand;
+import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintSetTransactionMetadataCommand;
+import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintShowStatusCommand;
+import org.apache.shardingsphere.proxy.backend.text.sctl.hint.internal.command.HintShowTableStatusCommand;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
